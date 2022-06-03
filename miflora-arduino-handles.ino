@@ -40,9 +40,10 @@
 #define RETURN_SEND_RETURN      "OK+SEND-OK"
 #define LENGTH_USABLE_DATA      16
 
+#define concat(x, y) x y
+
 // Magic value...
 uint8_t g_magic_ua8[] = {0xA0, 0x1F};
-
 void parse_data(uint8_t f_data_stream_ua8[]);
 SoftwareSerial g_serialbluetooth_h(10, 11); // RX, TX (Arduino side)
 
@@ -69,7 +70,8 @@ void setup() {
 
 void loop() {
   // Connect to MiFlora
-  g_serialbluetooth_h.write("AT+CONC47C8D6DD7D1");
+  g_serialbluetooth_h.write(concat(CMD_CONNECT, BT_ADRESS));
+  //g_serialbluetooth_h.write("AT+CONC47C8D6DD7D1");
 
   // Wait till response is complete
   // Unfortanetly the response take a while and off course not "Real Time"...
@@ -92,13 +94,15 @@ void loop() {
     #endif
 
     // Set the mode to "writing" for handly 0033
-    g_serialbluetooth_h.write("AT+SET_WAYWR0033"); 
+    g_serialbluetooth_h.write(concat(CMD_SET_MODE,HANDLE_MODE)); 
+    //g_serialbluetooth_h.write("AT+SET_WAYWR0033");
     delay(100);
     // Send the magic values as raw integer (not ASCII!)
     g_serialbluetooth_h.write(g_magic_ua8,2);
     delay(100);
     // Readreqeust for the Sensor Data
-    g_serialbluetooth_h.write("AT+READDATA0035?");
+    g_serialbluetooth_h.write(concat(concat(CMD_READ,HANDLE_SENSOR_DATA),"?"));
+    //g_serialbluetooth_h.write("AT+READDATA0035?");
     delay(500);
 
     // Read the Data
